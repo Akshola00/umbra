@@ -72,7 +72,7 @@ export default function RootLayout({
           </main>
           <footer className="border-t border-[#171821] bg-black/70">
             <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4 text-[11px] text-gray-500 font-mono uppercase tracking-[0.2em]">
-              <span>zypherpunk hackathon 2025 · prototype ui</span>
+              <span>zypherpunk hackathon 2025 · umbra teleport</span>
               <span className="hidden sm:inline">
                 shielded teleport · zcash → near
               </span>

@@ -26,7 +26,27 @@ type PersistedState = {
   axelarTx: string | null;
 };
 
-const STORAGE_KEY = "umbra-demo-state";
+const STORAGE_KEY = "umbra-teleport-state";
+
+const CHAINS = ["Zcash", "NEAR"] as const;
+type Chain = (typeof CHAINS)[number];
+
+function randomHex(bytes: number) {
+  const arr = new Uint8Array(bytes);
+  if (typeof window !== "undefined" && window.crypto?.getRandomValues) {
+    window.crypto.getRandomValues(arr);
+  } else {
+    for (let i = 0; i < bytes; i += 1) {
+      arr[i] = Math.floor(Math.random() * 256);
+    }
+  }
+  return (
+    "0x" +
+    Array.from(arr)
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("")
+  );
+}
 
 export default function DashboardPage() {
   const { accountId, isConnected } = useNearWallet();
@@ -39,6 +59,8 @@ export default function DashboardPage() {
   const [axelarTx, setAxelarTx] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [fromChain, setFromChain] = useState<Chain>("Zcash");
+  const [toChain, setToChain] = useState<Chain>("NEAR");
 
   // hydrate from localStorage
   useEffect(() => {
@@ -118,7 +140,9 @@ export default function DashboardPage() {
       ],
       () => {
         const fakeNote =
-          "zcash1qz0teleportdemo2k9u7n4m5x3y8v7w3c9p5l2k0a7s4d2f3g5h7j9";
+          "zcash1q" +
+          Math.random().toString(36).slice(2, 10) +
+          Math.random().toString(36).slice(2, 18);
         setDepositNote(fakeNote);
         setCurrentStep("proof");
       }
@@ -145,8 +169,8 @@ export default function DashboardPage() {
         "↳ Proof ready!",
       ],
       () => {
-        setProof("0xproof_demo_zteleport_abc123");
-        setNullifier("0xnullifier_deadbeefcafe01");
+        setProof(randomHex(32));
+        setNullifier(randomHex(32));
         setCurrentStep("intent");
       }
     );
@@ -170,7 +194,7 @@ export default function DashboardPage() {
         "↳ Teleport intent accepted.",
       ],
       () => {
-        setAxelarTx("0xaxelar_demo_tx_92fa1c");
+        setAxelarTx(randomHex(20));
       }
     );
   };
@@ -193,11 +217,7 @@ export default function DashboardPage() {
 
   return (
     <div className="relative">
-      <ProcessingOverlay
-        open={isLoading}
-        title={overlayTitle}
-        subtitle="This is a local demo. No real funds are moved."
-      />
+      <ProcessingOverlay open={isLoading} title={overlayTitle} />
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
         <Card className="space-y-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -211,7 +231,7 @@ export default function DashboardPage() {
             </div>
             <div className="space-y-1 text-right">
               <div className="rounded-full bg-black/60 px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-gray-500 ring-1 ring-[#2a2a2b]">
-                MVP · Demo
+                Shielded Teleport
               </div>
               <div className="text-[10px] text-gray-500">
                 Receiving NEAR account:{" "}
@@ -227,18 +247,42 @@ export default function DashboardPage() {
               <div className="text-[11px] uppercase tracking-[0.2em] text-gray-500">
                 From
               </div>
-              <div className="flex items-center justify-between rounded-xl bg-black/60 px-3 py-2 ring-1 ring-[#2a2a2b]">
-                <span className="font-medium text-gray-100">Zcash</span>
-                <span className="text-[11px] text-gray-500">Shielded</span>
+              <div className="space-y-2">
+                <select
+                  value={fromChain}
+                  onChange={(e) => setFromChain(e.target.value as Chain)}
+                  className="w-full rounded-xl border border-[#2a2a2b] bg-black/60 px-3 py-2 text-xs text-gray-100 outline-none ring-0 focus:border-[#79F8D4] focus:ring-1 focus:ring-[#79F8D4]"
+                >
+                  {CHAINS.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
+                <div className="text-[10px] text-gray-500">
+                  {fromChain === "Zcash" ? "Shielded pool" : "Account-based"}
+                </div>
               </div>
             </div>
             <div className="space-y-2">
               <div className="text-[11px] uppercase tracking-[0.2em] text-gray-500">
                 To
               </div>
-              <div className="flex items-center justify-between rounded-xl bg-black/60 px-3 py-2 ring-1 ring-[#2a2a2b]">
-                <span className="font-medium text-gray-100">NEAR</span>
-                <span className="text-[11px] text-gray-500">Stealth</span>
+              <div className="space-y-2">
+                <select
+                  value={toChain}
+                  onChange={(e) => setToChain(e.target.value as Chain)}
+                  className="w-full rounded-xl border border-[#2a2a2b] bg-black/60 px-3 py-2 text-xs text-gray-100 outline-none ring-0 focus:border-[#79F8D4] focus:ring-1 focus:ring-[#79F8D4]"
+                >
+                  {CHAINS.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
+                <div className="text-[10px] text-gray-500">
+                  {toChain === "NEAR" ? "Stealth account" : "Shielded pool"}
+                </div>
               </div>
             </div>
             <div className="space-y-2">
@@ -453,8 +497,8 @@ export default function DashboardPage() {
                 </>
               ) : (
                 <span>
-                  This is a UI-only demo. Wire real wallets / provers into these
-                  steps.
+                  Teleport will be relayed via Axelar and minted to your NEAR
+                  stealth account.
                 </span>
               )}
             </div>

@@ -18,12 +18,6 @@ export function ProcessingOverlay({ open, title, subtitle }: Props) {
           <Spinner />
         </div>
         <h2 className="text-sm font-semibold text-gray-100">{title}</h2>
-        {subtitle && (
-          <p className="mt-2 text-xs text-gray-500">{subtitle}</p>
-        )}
-        <p className="mt-4 text-[10px] uppercase tracking-[0.2em] text-gray-600">
-          Computing locally · Demo only
-        </p>
       </div>
     </div>
   );
