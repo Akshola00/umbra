@@ -1,65 +1,127 @@
-import Image from "next/image";
+import Link from "next/link";
+import { Card } from "./components/ui/Card";
+import { Button } from "./components/ui/Button";
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <div className="grid gap-10 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
+      <section className="space-y-8">
+        <div className="inline-flex items-center gap-2 rounded-full border border-[#2a2a2b] bg-black/50 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.25em] text-gray-400">
+          <span className="h-1.5 w-1.5 rounded-full bg-[#79F8D4] shadow-[0_0_12px_rgba(121,248,212,0.9)]" />
+          Private Cross-Chain Teleport
+        </div>
+        <div className="space-y-4">
+          <h1 className="text-balance text-4xl font-semibold tracking-tight text-gray-100 sm:text-5xl">
+            Teleport Assets{" "}
+            <span className="bg-gradient-to-r from-[#F6C915] via-[#00F6FF] to-[#79F8D4] bg-clip-text text-transparent">
+              Privately
+            </span>{" "}
+            Across Chains.
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="max-w-xl text-balance text-sm text-gray-400 sm:text-base">
+            Use Zcash shielded pools to teleport value into NEAR without
+            revealing your identity. Zero-knowledge proofs, stealth addresses,
+            and cross-chain messaging, wrapped in one clean interface.
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+
+        <div className="flex flex-wrap items-center gap-4">
+          <Link href="/dashboard">
+            <Button className="px-7 py-3.5 text-sm">
+              Launch App
+            </Button>
+          </Link>
+          <Link
+            href="/dashboard"
+            className="text-xs font-medium text-gray-400 hover:text-[#79F8D4]"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            Or explore the teleport flow →
+          </Link>
         </div>
-      </main>
+
+        <div className="grid gap-4 text-xs text-gray-400 sm:grid-cols-3">
+          <div>
+            <div className="text-[11px] uppercase tracking-[0.2em] text-gray-500">
+              Step 1
+            </div>
+            <div className="mt-1 font-medium text-gray-200">
+              Create shielded deposit
+            </div>
+            <p className="mt-1 text-[11px] text-gray-500">
+              Lock ZEC into a shielded pool and receive a private note.
+            </p>
+          </div>
+          <div>
+            <div className="text-[11px] uppercase tracking-[0.2em] text-gray-500">
+              Step 2
+            </div>
+            <div className="mt-1 font-medium text-gray-200">
+              Generate ZK teleport proof
+            </div>
+            <p className="mt-1 text-[11px] text-gray-500">
+              Locally create a proof that your deposit exists, without
+              revealing which one.
+            </p>
+          </div>
+          <div>
+            <div className="text-[11px] uppercase tracking-[0.2em] text-gray-500">
+              Step 3
+            </div>
+            <div className="mt-1 font-medium text-gray-200">
+              Axelar → NEAR stealth mint
+            </div>
+            <p className="mt-1 text-[11px] text-gray-500">
+              Relay your intent to NEAR and receive funds at a stealth address.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="space-y-4">
+        <Card className="relative overflow-hidden">
+          <div className="pointer-events-none absolute inset-0 opacity-40 mix-blend-screen">
+            <div className="from-[#F6C915]/20 via-transparent to-[#00F6FF]/20 absolute -left-36 top-0 h-72 w-72 rounded-full bg-gradient-to-br blur-3xl" />
+            <div className="from-[#79F8D4]/25 via-transparent to-transparent absolute bottom-0 right-0 h-72 w-72 rounded-full bg-gradient-to-tl blur-3xl" />
+          </div>
+          <div className="relative space-y-4">
+            <div className="flex items-center justify-between gap-3">
+              <div className="text-xs font-medium uppercase tracking-[0.2em] text-gray-400">
+                Teleport Preview
+              </div>
+              <div className="rounded-full bg-black/60 px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-gray-500 ring-1 ring-[#2a2a2b]">
+                Zcash → NEAR
+              </div>
+            </div>
+            <div className="space-y-3 text-xs text-gray-300">
+              <div className="flex items-center gap-2">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#F6C915]" />
+                Shielded deposit created
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#00F6FF]" />
+                ZK teleport proof ready
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#79F8D4]" />
+                Axelar message en route to NEAR
+              </div>
+            </div>
+            <div className="mt-2 rounded-xl bg-black/60 p-3 text-[11px] text-gray-400 ring-1 ring-[#2a2a2b]">
+              <div className="mb-1 font-mono text-[10px] text-gray-500">
+                terminal
+              </div>
+              <div className="space-y-1 font-mono text-[11px] leading-relaxed">
+                <div>↳ Creating shielded note...</div>
+                <div>↳ Broadcasting to Zcash...</div>
+                <div className="text-[#79F8D4]">↳ Deposit confirmed.</div>
+                <div>↳ Loading Merkle path...</div>
+                <div>↳ Generating teleport proof...</div>
+                <div className="text-[#00F6FF]">↳ Proof ready.</div>
+              </div>
+            </div>
+          </div>
+        </Card>
+      </section>
     </div>
   );
 }
