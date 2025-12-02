@@ -42,7 +42,7 @@ export default function SuccessPage() {
           />
         </div>
 
-        <div className="flex flex-wrap items-center gap-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
           <Button asChild>
             <Link href="/dashboard">Teleport Again</Link>
           </Button>

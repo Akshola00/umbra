@@ -15,9 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Z-Teleport",
+  title: "Umbra",
   description:
-    "Teleport assets privately across chains using Zcash shielded pools and NEAR.",
+    "Umbra: teleport assets privately across chains using Zcash shielded pools and NEAR.",
 };
 
 export default function RootLayout({
@@ -38,7 +38,7 @@ export default function RootLayout({
                 className="flex items-center gap-2 text-sm font-semibold tracking-[0.25em] uppercase text-gray-300"
               >
                 <span className="h-2 w-2 rounded-full bg-[#F6C915] shadow-[0_0_16px_rgba(246,201,21,0.9)]" />
-                Z-Teleport
+                Umbra
               </Link>
               <nav className="flex items-center gap-4 text-xs text-gray-400">
                 <Link

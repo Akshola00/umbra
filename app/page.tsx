@@ -25,9 +25,9 @@ export default function Home() {
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-4">
-          <Link href="/dashboard">
-            <Button className="px-7 py-3.5 text-sm">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+          <Link href="/dashboard" className="sm:inline-flex sm:items-center">
+            <Button className="w-full px-7 py-3.5 text-sm sm:w-auto">
               Launch App
             </Button>
           </Link>

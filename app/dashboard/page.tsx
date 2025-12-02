@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card } from "../components/ui/Card";
 import { Button } from "../components/ui/Button";
 import { StatusBadge } from "../components/ui/StatusBadge";
 import { Spinner, ProgressBar } from "../components/ui/Loader";
 import Link from "next/link";
 import { useNearWallet } from "../hooks/useNearWallet";
+import { ProcessingOverlay } from "../components/ProcessingOverlay";
 
 type Step = "deposit" | "proof" | "intent";
 
@@ -14,6 +15,18 @@ const initialLog = [
   "Waiting for shielded deposit...",
   "Connect a wallet and choose an amount to begin.",
 ];
+
+type PersistedState = {
+  amount: string;
+  currentStep: Step;
+  logs: string[];
+  depositNote: string | null;
+  proof: string | null;
+  nullifier: string | null;
+  axelarTx: string | null;
+};
+
+const STORAGE_KEY = "umbra-demo-state";
 
 export default function DashboardPage() {
   const { accountId, isConnected } = useNearWallet();
@@ -26,6 +39,40 @@ export default function DashboardPage() {
   const [axelarTx, setAxelarTx] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [progress, setProgress] = useState(0);
+
+  // hydrate from localStorage
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const raw = window.localStorage.getItem(STORAGE_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as PersistedState;
+      setAmount(parsed.amount);
+      setCurrentStep(parsed.currentStep);
+      setLogs(parsed.logs.length ? parsed.logs : initialLog);
+      setDepositNote(parsed.depositNote);
+      setProof(parsed.proof);
+      setNullifier(parsed.nullifier);
+      setAxelarTx(parsed.axelarTx);
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  // persist to localStorage
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const state: PersistedState = {
+      amount,
+      currentStep,
+      logs,
+      depositNote,
+      proof,
+      nullifier,
+      axelarTx,
+    };
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }, [amount, currentStep, logs, depositNote, proof, nullifier, axelarTx]);
 
   const appendLog = (line: string) =>
     setLogs((prev) => [...prev, line].slice(-12));
@@ -137,272 +184,283 @@ export default function DashboardPage() {
     return "pending" as const;
   };
 
+  const overlayTitle =
+    currentStep === "deposit"
+      ? "Creating shielded deposit..."
+      : currentStep === "proof"
+      ? "Generating ZK teleport proof..."
+      : "Sending teleport intent via Axelar...";
+
   return (
-    <div className="grid gap-8 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
-      <Card className="space-y-6">
-        <div className="flex items-center justify-between gap-3">
-          <div className="space-y-1">
-            <div className="text-xs font-semibold uppercase tracking-[0.3em] text-gray-500">
-              Teleport
+    <div className="relative">
+      <ProcessingOverlay
+        open={isLoading}
+        title={overlayTitle}
+        subtitle="This is a local demo. No real funds are moved."
+      />
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
+        <Card className="space-y-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="space-y-1">
+              <div className="text-xs font-semibold uppercase tracking-[0.3em] text-gray-500">
+                Teleport
+              </div>
+              <h2 className="text-lg font-semibold text-gray-100 sm:text-xl">
+                Zcash → NEAR Private Teleport
+              </h2>
             </div>
-            <h2 className="text-lg font-semibold text-gray-100 sm:text-xl">
-              Zcash → NEAR Private Teleport
-            </h2>
+            <div className="space-y-1 text-right">
+              <div className="rounded-full bg-black/60 px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-gray-500 ring-1 ring-[#2a2a2b]">
+                MVP · Demo
+              </div>
+              <div className="text-[10px] text-gray-500">
+                Receiving NEAR account:{" "}
+                <span className="font-mono text-[10px] text-gray-300">
+                  {isConnected && accountId ? accountId : "not connected"}
+                </span>
+              </div>
+            </div>
           </div>
-          <div className="space-y-1 text-right">
-            <div className="rounded-full bg-black/60 px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-gray-500 ring-1 ring-[#2a2a2b]">
-              MVP · Demo
+
+          <div className="grid gap-4 text-xs text-gray-400 sm:grid-cols-3">
+            <div className="space-y-2">
+              <div className="text-[11px] uppercase tracking-[0.2em] text-gray-500">
+                From
+              </div>
+              <div className="flex items-center justify-between rounded-xl bg-black/60 px-3 py-2 ring-1 ring-[#2a2a2b]">
+                <span className="font-medium text-gray-100">Zcash</span>
+                <span className="text-[11px] text-gray-500">Shielded</span>
+              </div>
             </div>
-            <div className="text-[10px] text-gray-500">
-              Receiving NEAR account:{" "}
-              <span className="font-mono text-[10px] text-gray-300">
-                {isConnected && accountId ? accountId : "not connected"}
+            <div className="space-y-2">
+              <div className="text-[11px] uppercase tracking-[0.2em] text-gray-500">
+                To
+              </div>
+              <div className="flex items-center justify-between rounded-xl bg-black/60 px-3 py-2 ring-1 ring-[#2a2a2b]">
+                <span className="font-medium text-gray-100">NEAR</span>
+                <span className="text-[11px] text-gray-500">Stealth</span>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="text-[11px] uppercase tracking-[0.2em] text-gray-500">
+                Asset
+              </div>
+              <div className="flex items-center justify-between rounded-xl bg-black/60 px-3 py-2 ring-1 ring-[#2a2a2b]">
+                <span className="font-medium text-gray-100">wZEC</span>
+                <span className="text-[11px] text-gray-500">testnet</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <label className="space-y-1 text-sm">
+              <span className="text-xs uppercase tracking-[0.2em] text-gray-500">
+                Amount
               </span>
-            </div>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                <input
+                  type="number"
+                  min="0"
+                  inputMode="decimal"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  placeholder="Enter amount of ZEC to teleport"
+                  className="flex-1 rounded-xl border border-[#2a2a2b] bg-black/60 px-3 py-2 text-sm text-gray-100 outline-none ring-0 placeholder:text-sm placeholder:text-gray-600 focus:border-[#79F8D4] focus:ring-1 focus:ring-[#79F8D4]"
+                />
+                <Button
+                  type="button"
+                  onClick={handleDeposit}
+                  disabled={isLoading}
+                  className="w-full sm:w-auto"
+                >
+                  {isLoading && currentStep === "deposit" ? (
+                    <span className="inline-flex items-center gap-2">
+                      <Spinner /> <span>Creating deposit</span>
+                    </span>
+                  ) : (
+                    "Generate Shielded Deposit"
+                  )}
+                </Button>
+              </div>
+            </label>
           </div>
-        </div>
 
-        <div className="grid gap-4 text-xs text-gray-400 sm:grid-cols-3">
-          <div className="space-y-2">
-            <div className="text-[11px] uppercase tracking-[0.2em] text-gray-500">
-              From
-            </div>
-            <div className="flex items-center justify-between rounded-xl bg-black/60 px-3 py-2 ring-1 ring-[#2a2a2b]">
-              <span className="font-medium text-gray-100">Zcash</span>
-              <span className="text-[11px] text-gray-500">Shielded</span>
-            </div>
-          </div>
-          <div className="space-y-2">
-            <div className="text-[11px] uppercase tracking-[0.2em] text-gray-500">
-              To
-            </div>
-            <div className="flex items-center justify-between rounded-xl bg-black/60 px-3 py-2 ring-1 ring-[#2a2a2b]">
-              <span className="font-medium text-gray-100">NEAR</span>
-              <span className="text-[11px] text-gray-500">Stealth</span>
-            </div>
-          </div>
-          <div className="space-y-2">
-            <div className="text-[11px] uppercase tracking-[0.2em] text-gray-500">
-              Asset
-            </div>
-            <div className="flex items-center justify-between rounded-xl bg-black/60 px-3 py-2 ring-1 ring-[#2a2a2b]">
-              <span className="font-medium text-gray-100">wZEC</span>
-              <span className="text-[11px] text-gray-500">testnet</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="space-y-3">
-          <label className="space-y-1 text-sm">
-            <span className="text-xs uppercase tracking-[0.2em] text-gray-500">
-              Amount
-            </span>
-            <div className="flex items-center gap-3">
-              <input
-                type="number"
-                min="0"
-                inputMode="decimal"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                placeholder="Enter amount of ZEC to teleport"
-                className="flex-1 rounded-xl border border-[#2a2a2b] bg-black/60 px-3 py-2 text-sm text-gray-100 outline-none ring-0 placeholder:text-sm placeholder:text-gray-600 focus:border-[#79F8D4] focus:ring-1 focus:ring-[#79F8D4]"
-              />
+          <div className="grid gap-3 md:grid-cols-3">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.18em] text-gray-500">
+                <span>Deposit</span>
+                <StatusBadge status={statusForStep("deposit")} />
+              </div>
               <Button
+                variant="secondary"
+                className="w-full text-xs"
                 type="button"
                 onClick={handleDeposit}
                 disabled={isLoading}
               >
-                {isLoading && currentStep === "deposit" ? (
-                  <span className="inline-flex items-center gap-2">
-                    <Spinner /> <span>Creating deposit</span>
-                  </span>
-                ) : (
-                  "Generate Shielded Deposit"
-                )}
+                Recreate deposit
               </Button>
             </div>
-          </label>
-        </div>
-
-        <div className="grid gap-3 md:grid-cols-3">
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.18em] text-gray-500">
-              <span>Deposit</span>
-              <StatusBadge status={statusForStep("deposit")} />
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.18em] text-gray-500">
+                <span>Proof</span>
+                <StatusBadge status={statusForStep("proof")} />
+              </div>
+              <Button
+                variant="secondary"
+                className="w-full text-xs"
+                type="button"
+                onClick={handleProof}
+                disabled={isLoading}
+              >
+                Generate ZK Proof
+              </Button>
             </div>
-            <Button
-              variant="secondary"
-              className="w-full text-xs"
-              type="button"
-              onClick={handleDeposit}
-              disabled={isLoading}
-            >
-              Recreate deposit
-            </Button>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.18em] text-gray-500">
+                <span>Intent</span>
+                <StatusBadge status={statusForStep("intent")} />
+              </div>
+              <Button
+                variant="secondary"
+                className="w-full text-xs"
+                type="button"
+                onClick={handleIntent}
+                disabled={isLoading}
+              >
+                Send Teleport Intent
+              </Button>
+            </div>
           </div>
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.18em] text-gray-500">
-              <span>Proof</span>
-              <StatusBadge status={statusForStep("proof")} />
-            </div>
-            <Button
-              variant="secondary"
-              className="w-full text-xs"
-              type="button"
-              onClick={handleProof}
-              disabled={isLoading}
-            >
-              Generate ZK Proof
-            </Button>
-          </div>
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.18em] text-gray-500">
-              <span>Intent</span>
-              <StatusBadge status={statusForStep("intent")} />
-            </div>
-            <Button
-              variant="secondary"
-              className="w-full text-xs"
-              type="button"
-              onClick={handleIntent}
-              disabled={isLoading}
-            >
-              Send Teleport Intent
-            </Button>
-          </div>
-        </div>
 
-        {isLoading && <ProgressBar progress={progress} />}
+          {isLoading && <ProgressBar progress={progress} />}
 
-        <div className="grid gap-4 lg:grid-cols-2">
-          <div className="space-y-2 text-xs">
-            <div className="text-[11px] uppercase tracking-[0.2em] text-gray-500">
-              Deposit Note
+          <div className="grid gap-4 lg:grid-cols-2">
+            <div className="space-y-2 text-xs">
+              <div className="text-[11px] uppercase tracking-[0.2em] text-gray-500">
+                Deposit Note
+              </div>
+              <div className="rounded-xl bg-black/60 p-3 ring-1 ring-[#2a2a2b]">
+                {depositNote ? (
+                  <code className="block max-h-20 overflow-y-auto text-[11px] text-[#79F8D4]">
+                    {depositNote}
+                  </code>
+                ) : (
+                  <span className="text-[11px] text-gray-500">
+                    No deposit note yet. Generate a shielded deposit to see it
+                    here.
+                  </span>
+                )}
+              </div>
             </div>
-            <div className="rounded-xl bg-black/60 p-3 ring-1 ring-[#2a2a2b]">
-              {depositNote ? (
-                <code className="block max-h-20 overflow-y-auto text-[11px] text-[#79F8D4]">
-                  {depositNote}
-                </code>
-              ) : (
-                <span className="text-[11px] text-gray-500">
-                  No deposit note yet. Generate a shielded deposit to see it
-                  here.
+            <div className="space-y-2 text-xs">
+              <div className="text-[11px] uppercase tracking-[0.2em] text-gray-500">
+                Proof & Nullifier
+              </div>
+              <div className="space-y-2 rounded-xl bg-black/60 p-3 ring-1 ring-[#2a2a2b]">
+                <div className="space-y-1">
+                  <div className="text-[10px] text-gray-500">Proof ID</div>
+                  <code className="block max-w-full overflow-hidden text-ellipsis whitespace-nowrap text-[11px] text-[#00F6FF]">
+                    {proof ?? "—"}
+                  </code>
+                </div>
+                <div className="space-y-1">
+                  <div className="text-[10px] text-gray-500">Nullifier</div>
+                  <code className="block max-w-full overflow-hidden text-ellipsis whitespace-nowrap text-[11px] text-[#F6C915]">
+                    {nullifier ?? "—"}
+                  </code>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Card>
+
+        <div className="space-y-4">
+          <Card className="h-full space-y-4">
+            <div className="flex items-center justify-between gap-2">
+              <div className="text-xs font-semibold uppercase tracking-[0.25em] text-gray-500">
+                Teleport Timeline
+              </div>
+              {axelarTx && (
+                <span className="rounded-full bg-[#03140f] px-3 py-1 text-[10px] font-medium uppercase tracking-[0.18em] text-[#79F8D4] ring-1 ring-[#79F8D4]/60">
+                  Complete
                 </span>
               )}
             </div>
-          </div>
-          <div className="space-y-2 text-xs">
-            <div className="text-[11px] uppercase tracking-[0.2em] text-gray-500">
-              Proof & Nullifier
-            </div>
-            <div className="space-y-2 rounded-xl bg-black/60 p-3 ring-1 ring-[#2a2a2b]">
-              <div className="space-y-1">
-                <div className="text-[10px] text-gray-500">Proof ID</div>
-                <code className="block max-w-full overflow-hidden text-ellipsis whitespace-nowrap text-[11px] text-[#00F6FF]">
-                  {proof ?? "—"}
-                </code>
-              </div>
-              <div className="space-y-1">
-                <div className="text-[10px] text-gray-500">Nullifier</div>
-                <code className="block max-w-full overflow-hidden text-ellipsis whitespace-nowrap text-[11px] text-[#F6C915]">
-                  {nullifier ?? "—"}
-                </code>
-              </div>
-            </div>
-          </div>
-        </div>
-      </Card>
-
-      <div className="space-y-4">
-        <Card className="h-full space-y-4">
-          <div className="flex items-center justify-between gap-2">
-            <div className="text-xs font-semibold uppercase tracking-[0.25em] text-gray-500">
-              Teleport Timeline
-            </div>
-            {axelarTx && (
-              <span className="rounded-full bg-[#03140f] px-3 py-1 text-[10px] font-medium uppercase tracking-[0.18em] text-[#79F8D4] ring-1 ring-[#79F8D4]/60">
-                Complete
-              </span>
-            )}
-          </div>
-          <ol className="space-y-4 text-xs text-gray-300">
-            <li className="flex items-start gap-3">
-              <span className="mt-0.5 h-2 w-2 rounded-full bg-[#F6C915]" />
-              <div>
-                <div className="font-medium text-gray-100">
-                  Shielded deposit on Zcash
+            <ol className="space-y-4 text-xs text-gray-300">
+              <li className="flex items-start gap-3">
+                <span className="mt-0.5 h-2 w-2 rounded-full bg-[#F6C915]" />
+                <div>
+                  <div className="font-medium text-gray-100">
+                    Shielded deposit on Zcash
+                  </div>
+                  <p className="text-[11px] text-gray-500">
+                    Your funds enter a shielded pool. Only a note and nullifier
+                    are kept client-side.
+                  </p>
                 </div>
-                <p className="text-[11px] text-gray-500">
-                  Your funds enter a shielded pool. Only a note and nullifier
-                  are kept client-side.
-                </p>
-              </div>
-            </li>
-            <li className="flex items-start gap-3">
-              <span className="mt-0.5 h-2 w-2 rounded-full bg-[#00F6FF]" />
-              <div>
-                <div className="font-medium text-gray-100">
-                  ZK teleport proof generation
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="mt-0.5 h-2 w-2 rounded-full bg-[#00F6FF]" />
+                <div>
+                  <div className="font-medium text-gray-100">
+                    ZK teleport proof generation
+                  </div>
+                  <p className="text-[11px] text-gray-500">
+                    Locally generate a proof that your deposit exists in the
+                    Merkle tree without revealing which leaf is yours.
+                  </p>
                 </div>
-                <p className="text-[11px] text-gray-500">
-                  Locally generate a proof that your deposit exists in the
-                  Merkle tree without revealing which leaf is yours.
-                </p>
-              </div>
-            </li>
-            <li className="flex items-start gap-3">
-              <span className="mt-0.5 h-2 w-2 rounded-full bg-[#79F8D4]" />
-              <div>
-                <div className="font-medium text-gray-100">
-                  Axelar relay → NEAR stealth mint
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="mt-0.5 h-2 w-2 rounded-full bg-[#79F8D4]" />
+                <div>
+                  <div className="font-medium text-gray-100">
+                    Axelar relay → NEAR stealth mint
+                  </div>
+                  <p className="text-[11px] text-gray-500">
+                    Axelar delivers your teleport intent to a NEAR contract,
+                    which mints funds to a fresh stealth address.
+                  </p>
                 </div>
-                <p className="text-[11px] text-gray-500">
-                  Axelar delivers your teleport intent to a NEAR contract,
-                  which mints funds to a fresh stealth address.
-                </p>
+              </li>
+            </ol>
+
+            <div className="space-y-2 rounded-xl bg-black/70 p-3 text-[11px] text-gray-400 ring-1 ring-[#2a2a2b]">
+              <div className="mb-1 font-mono text-[10px] text-gray-500">
+                prover / relayer log
               </div>
-            </li>
-          </ol>
-
-          <div className="space-y-2 rounded-xl bg-black/70 p-3 text-[11px] text-gray-400 ring-1 ring-[#2a2a2b]">
-            <div className="mb-1 font-mono text-[10px] text-gray-500">
-              prover / relayer log
+              <div className="max-h-40 space-y-1 overflow-y-auto font-mono text-[11px] leading-relaxed">
+                {logs.map((line, idx) => (
+                  <div key={idx}>{line}</div>
+                ))}
+              </div>
             </div>
-            <div className="max-h-40 space-y-1 overflow-y-auto font-mono text-[11px] leading-relaxed">
-              {logs.map((line, idx) => (
-                <div key={idx}>{line}</div>
-              ))}
-            </div>
-          </div>
 
-          <div className="flex items-center justify-between gap-2 text-[11px] text-gray-500">
-            {axelarTx ? (
-              <>
-                <span className="truncate">
-                  Axelar tx:{" "}
-                  <span className="font-mono text-[#79F8D4]">
-                    {axelarTx}
+            <div className="flex items-center justify-between gap-2 text-[11px] text-gray-500">
+              {axelarTx ? (
+                <>
+                  <span className="truncate">
+                    Axelar tx:{" "}
+                    <span className="font-mono text-[#79F8D4]">{axelarTx}</span>
                   </span>
+                  <Link
+                    href="/success"
+                    className="text-[11px] font-medium text-[#79F8D4] hover:text-[#00F6FF]"
+                  >
+                    View minted stealth address →
+                  </Link>
+                </>
+              ) : (
+                <span>
+                  This is a UI-only demo. Wire real wallets / provers into these
+                  steps.
                 </span>
-                <Link
-                  href="/success"
-                  className="text-[11px] font-medium text-[#79F8D4] hover:text-[#00F6FF]"
-                >
-                  View minted stealth address →
-                </Link>
-              </>
-            ) : (
-              <span>
-                This is a UI-only demo. Wire real wallets / provers into these
-                steps.
-              </span>
-            )}
-          </div>
-        </Card>
+              )}
+            </div>
+          </Card>
+        </div>
       </div>
     </div>
   );
 }
-
-
