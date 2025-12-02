@@ -4,7 +4,7 @@ import { Button } from "./ui/Button";
 import { useNearWallet } from "../hooks/useNearWallet";
 
 export function WalletConnectButton() {
-  const { loading, accountId, isConnected, connectWallet, disconnect } =
+  const { loading, accountId, isConnected, connectWallet, disconnect, error } =
     useNearWallet();
 
   if (isConnected && accountId) {
@@ -29,9 +29,13 @@ export function WalletConnectButton() {
       variant="secondary"
       className="px-3 py-1 text-[11px] uppercase tracking-[0.18em]"
       onClick={connectWallet}
-      disabled={loading}
+      disabled={loading || !!error}
     >
-      {loading ? "Loading NEAR..." : "Connect NEAR Wallet"}
+      {loading
+        ? "Loading NEAR..."
+        : error
+        ? "NEAR Wallet Error"
+        : "Connect NEAR Wallet"}
     </Button>
   );
 }

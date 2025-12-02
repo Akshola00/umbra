@@ -8,6 +8,7 @@ type WalletState = {
   loading: boolean;
   accountId: string | null;
   wallet: any | null;
+  error: string | null;
 };
 
 export function useNearWallet() {
@@ -16,6 +17,7 @@ export function useNearWallet() {
     loading: true,
     accountId: null,
     wallet: null,
+    error: null,
   });
 
   useEffect(() => {
@@ -45,6 +47,7 @@ export function useNearWallet() {
           loading: false,
           accountId,
           wallet,
+          error: null,
         });
       } catch (e) {
         if (!cancelled) {
@@ -53,6 +56,10 @@ export function useNearWallet() {
             ...prev,
             initialized: true,
             loading: false,
+            error:
+              e instanceof Error
+                ? e.message
+                : "Failed to initialize NEAR wallet. See console for details.",
           }));
         }
       }
@@ -66,10 +73,23 @@ export function useNearWallet() {
   }, []);
 
   const connectWallet = useCallback(() => {
-    if (!state.wallet) return;
-    state.wallet.requestSignIn({
-      contractId: nearConfig.contractId,
-    });
+    if (!state.wallet) {
+      if (state.error) {
+        // Surface something visible to the user instead of silently doing nothing
+        if (typeof window !== "undefined") {
+          window.alert(
+            `Unable to connect NEAR wallet:\n\n${state.error}\n\nCheck the browser console for more details.`
+          );
+        }
+      }
+      return;
+    }
+
+    // For this demo we don't require a specific contract account to exist.
+    // Passing a non-existent contractId (like the placeholder in nearConfig)
+    // causes a runtime error from NEAR. A plain sign-in just authenticates
+    // the user without tying it to a contract.
+    state.wallet.requestSignIn();
   }, [state.wallet]);
 
   const disconnect = useCallback(() => {
@@ -87,6 +107,7 @@ export function useNearWallet() {
     isConnected: !!state.accountId,
     connectWallet,
     disconnect,
+    error: state.error,
   };
 }
 

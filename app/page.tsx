@@ -13,9 +13,7 @@ export default function Home() {
         <div className="space-y-4">
           <h1 className="text-balance text-4xl font-semibold tracking-tight text-gray-100 sm:text-5xl">
             Teleport Assets{" "}
-            <span className="bg-gradient-to-r from-[#F6C915] via-[#00F6FF] to-[#79F8D4] bg-clip-text text-transparent">
-              Privately
-            </span>{" "}
+            <span className="text-[#79F8D4]">Privately</span>{" "}
             Across Chains.
           </h1>
           <p className="max-w-xl text-balance text-sm text-gray-400 sm:text-base">
@@ -80,8 +78,8 @@ export default function Home() {
       <section className="space-y-4">
         <Card className="relative overflow-hidden">
           <div className="pointer-events-none absolute inset-0 opacity-40 mix-blend-screen">
-            <div className="from-[#F6C915]/20 via-transparent to-[#00F6FF]/20 absolute -left-36 top-0 h-72 w-72 rounded-full bg-gradient-to-br blur-3xl" />
-            <div className="from-[#79F8D4]/25 via-transparent to-transparent absolute bottom-0 right-0 h-72 w-72 rounded-full bg-gradient-to-tl blur-3xl" />
+            <div className="from-[#F6C915]/20 via-transparent to-[#00F6FF]/20 absolute -left-36 top-0 h-72 w-72 rounded-full bg-linear-to-br blur-3xl" />
+            <div className="from-[#79F8D4]/25 via-transparent to-transparent absolute bottom-0 right-0 h-72 w-72 rounded-full bg-linear-to-tl blur-3xl" />
           </div>
           <div className="relative space-y-4">
             <div className="flex items-center justify-between gap-3">

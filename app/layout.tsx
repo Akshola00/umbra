@@ -28,22 +28,22 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[#0e0e0f] text-gray-100`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased text-gray-100`}
       >
-        <div className="min-h-screen bg-[radial-gradient(circle_at_top,_#1b1b1f_0,_#050506_55%,_#000000_100%)] text-gray-100">
-          <header className="border-b border-[#1f1f21] bg-black/40 backdrop-blur-md">
+        <div className="min-h-screen text-gray-100">
+          <header className="border-b border-[#171821] bg-black/50 backdrop-blur-md">
             <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
               <Link
                 href="/"
-                className="flex items-center gap-2 text-sm font-semibold tracking-[0.25em] uppercase text-gray-300"
+                className="flex items-center gap-2 text-xs font-semibold tracking-[0.22em] uppercase text-gray-300"
               >
-                <span className="h-2 w-2 rounded-full bg-[#F6C915] shadow-[0_0_16px_rgba(246,201,21,0.9)]" />
-                Umbra
+                <span className="h-2 w-2 rounded-full bg-[#79F8D4] shadow-[0_0_16px_rgba(121,248,212,0.9)]" />
+                <span className="font-mono">Umbra</span>
               </Link>
-              <nav className="flex items-center gap-4 text-xs text-gray-400">
+              <nav className="flex items-center gap-4 text-[11px] text-gray-400 font-mono uppercase tracking-[0.2em]">
                 <Link
                   href="/dashboard"
-                  className="rounded-full px-3 py-1 hover:bg-white/5"
+                  className="rounded-full px-3 py-1 hover:bg-white/5/50 hover:text-gray-100"
                 >
                   App
                 </Link>
@@ -51,7 +51,7 @@ export default function RootLayout({
                   href="https://github.com"
                   target="_blank"
                   rel="noreferrer"
-                  className="rounded-full px-3 py-1 hover:bg-white/5"
+                  className="rounded-full px-3 py-1 hover:bg-white/5/50 hover:text-gray-100"
                 >
                   GitHub
                 </a>
@@ -59,7 +59,7 @@ export default function RootLayout({
                   href="https://docs.example.com"
                   target="_blank"
                   rel="noreferrer"
-                  className="rounded-full px-3 py-1 hover:bg:white/5 hover:bg-white/5"
+                  className="rounded-full px-3 py-1 hover:bg-white/5/50 hover:text-gray-100"
                 >
                   Docs
                 </a>
@@ -70,11 +70,11 @@ export default function RootLayout({
           <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
             {children}
           </main>
-          <footer className="border-t border-[#1f1f21] bg-black/60">
-            <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4 text-xs text-gray-500">
-              <span>Zypherpunk Hackathon 2025 · Prototype UI</span>
+          <footer className="border-t border-[#171821] bg-black/70">
+            <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4 text-[11px] text-gray-500 font-mono uppercase tracking-[0.2em]">
+              <span>zypherpunk hackathon 2025 · prototype ui</span>
               <span className="hidden sm:inline">
-                Built for privacy-preserving cross-chain teleports
+                shielded teleport · zcash → near
               </span>
             </div>
           </footer>
