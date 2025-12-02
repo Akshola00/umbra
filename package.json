@@ -9,6 +9,9 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@near-wallet-selector/core": "^10.1.2",
+    "@near-wallet-selector/modal-ui": "^10.1.2",
+    "@near-wallet-selector/wallet-connect": "^10.1.2",
     "near-api-js": "^3.0.4",
     "next": "16.0.6",
     "react": "19.2.0",

@@ -1,11 +1,11 @@
 "use client";
 
 import { Button } from "./ui/Button";
-import { useNearWallet } from "../hooks/useNearWallet";
+import { useWalletSelector } from "../hooks/useWalletSelector";
 
 export function WalletConnectButton() {
   const { loading, accountId, isConnected, connectWallet, disconnect, error } =
-    useNearWallet();
+    useWalletSelector();
 
   if (isConnected && accountId) {
     return (
@@ -34,7 +34,7 @@ export function WalletConnectButton() {
       {loading
         ? "Loading NEAR..."
         : error
-        ? "NEAR Wallet Error"
+        ? "DOWNLOAD NEAR WALLET TO USE"
         : "Connect NEAR Wallet"}
     </Button>
   );
