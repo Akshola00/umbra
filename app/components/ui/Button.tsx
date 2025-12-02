@@ -1,4 +1,4 @@
-import React from "react";
+import React, { JSX } from "react";
 
 export type ButtonVariant = "primary" | "secondary" | "ghost";
 
@@ -35,12 +35,15 @@ export function Button({
   const classes = `${baseClasses} ${variantClasses[variant]} ${className}`;
 
   if (asChild && React.isValidElement(children)) {
-    return React.cloneElement(children, {
-      className: [classes, (children.props as { className?: string }).className]
-        .filter(Boolean)
-        .join(" "),
-      ...rest,
-    });
+    return React.cloneElement(
+      children,
+      {
+        ...('className' in (children.props as Record<string, unknown>) 
+          ? { className: [classes, (children.props as Record<string, unknown>).className].filter(Boolean).join(" ") } 
+          : { className: classes }),
+        ...rest,
+      }
+    );
   }
 
   return (
