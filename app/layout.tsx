@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import "./globals.css";
+import { WalletConnectButton } from "./components/WalletConnectButton";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -58,13 +59,11 @@ export default function RootLayout({
                   href="https://docs.example.com"
                   target="_blank"
                   rel="noreferrer"
-                  className="rounded-full px-3 py-1 hover:bg-white/5"
+                  className="rounded-full px-3 py-1 hover:bg:white/5 hover:bg-white/5"
                 >
                   Docs
                 </a>
-                <button className="rounded-full border border-[#2a2a2b] bg-[#111214] px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-gray-200 hover:border-[#79F8D4]/70 hover:text-[#79F8D4]">
-                  Connect Wallet
-                </button>
+                <WalletConnectButton />
               </nav>
             </div>
           </header>

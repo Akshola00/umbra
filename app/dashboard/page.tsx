@@ -6,6 +6,7 @@ import { Button } from "../components/ui/Button";
 import { StatusBadge } from "../components/ui/StatusBadge";
 import { Spinner, ProgressBar } from "../components/ui/Loader";
 import Link from "next/link";
+import { useNearWallet } from "../hooks/useNearWallet";
 
 type Step = "deposit" | "proof" | "intent";
 
@@ -15,6 +16,7 @@ const initialLog = [
 ];
 
 export default function DashboardPage() {
+  const { accountId, isConnected } = useNearWallet();
   const [amount, setAmount] = useState("");
   const [currentStep, setCurrentStep] = useState<Step>("deposit");
   const [logs, setLogs] = useState<string[]>(initialLog);
@@ -147,8 +149,16 @@ export default function DashboardPage() {
               Zcash → NEAR Private Teleport
             </h2>
           </div>
-          <div className="rounded-full bg-black/60 px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-gray-500 ring-1 ring-[#2a2a2b]">
-            MVP · Demo
+          <div className="space-y-1 text-right">
+            <div className="rounded-full bg-black/60 px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-gray-500 ring-1 ring-[#2a2a2b]">
+              MVP · Demo
+            </div>
+            <div className="text-[10px] text-gray-500">
+              Receiving NEAR account:{" "}
+              <span className="font-mono text-[10px] text-gray-300">
+                {isConnected && accountId ? accountId : "not connected"}
+              </span>
+            </div>
           </div>
         </div>
 
